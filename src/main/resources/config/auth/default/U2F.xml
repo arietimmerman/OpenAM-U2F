@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ModuleProperties PUBLIC "=//iPlanet//Authentication Module Properties XML Interface 1.0 DTD//EN" "jar://com/sun/identity/authentication/Auth_Module_Properties.dtd">
+<!-- Related to the service iPlanetAMAuth[moduleName]Service -->
+<!-- Relates to a class named [moduleName], in this case nl.arietimmerman.openamu2f.SampleAuth -->
+<ModuleProperties moduleName="U2F" version="1.0">
+
+	<Callbacks length="0" order="1" timeout="600" header="#NOT SHOWN#" />
+
+	<!-- either shows possibility to login + manage devices, or possibility to register or skip, with optionally remember my choice -->
+
+	<!-- STATE_LOGIN -->
+	<Callbacks length="4" order="2" header="#TO BE SUBSTITUTED#">
+		<HiddenValueCallback>
+			<Id>signResponse</Id>
+		</HiddenValueCallback>
+
+		<NameCallback>
+			<Prompt>will be replace by a scriptcallback</Prompt>
+		</NameCallback>
+
+		<TextOutputCallback><![CDATA[<b>Insert your Security Key.</b><br /><br />If your Security Key has a button, tap it.<br />If it doesn't, remove and re-insert it.]]></TextOutputCallback>
+
+		<HiddenValueCallback>
+			<Id>manage</Id>
+		</HiddenValueCallback>
+
+	</Callbacks>
+
+	<!-- STATE_REGISTER -->
+	<Callbacks length="3" order="3" header="#TO BE SUBSTITUTED#">
+	
+		<HiddenValueCallback>
+			<Id>Replaced by Success Message</Id>
+		</HiddenValueCallback>
+		
+		<ChoiceCallback multipleSelectionsAllowed="true" isRequired="false" infoText="select to remove">
+			<Prompt>Remove selected</Prompt>
+			<ChoiceValues>
+				<ChoiceValue>
+					<Value>device 1</Value>
+				</ChoiceValue>
+				<ChoiceValue>
+					<Value>device 2</Value>
+				</ChoiceValue>
+				<ChoiceValue>
+					<Value>device 3</Value>
+				</ChoiceValue>
+			</ChoiceValues>
+		</ChoiceCallback>
+
+		<ConfirmationCallback>
+			<OptionValues>
+				<OptionValue>
+					<Value>Remove selected</Value>
+				</OptionValue>
+				<OptionValue>
+					<Value>Register New</Value>
+				</OptionValue>
+				<OptionValue>
+					<Value>Done</Value>
+				</OptionValue>
+			</OptionValues>
+		</ConfirmationCallback>
+	</Callbacks>
+
+	<!-- STATE_NEW -->
+	<Callbacks length="3" order="4" header="#TO BE SUBSTITUTED#">
+		<HiddenValueCallback>
+			<Id>signResponse</Id>
+		</HiddenValueCallback>
+
+		<NameCallback>
+			<Prompt>will be replace by a scriptcallback</Prompt>
+		</NameCallback>
+
+		<ConfirmationCallback>
+			<OptionValues>
+				<OptionValue>
+					<Value>Cancel</Value>
+				</OptionValue>
+			</OptionValues>
+		</ConfirmationCallback>
+	</Callbacks>
+
+	<Callbacks length="1" order="5" timeout="600" header="#TO BE SUBSTITUTED#" error="true">
+		<TextOutputCallback>Could not login</TextOutputCallback>
+	</Callbacks>
+
+</ModuleProperties>
