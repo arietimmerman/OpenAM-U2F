@@ -7,6 +7,9 @@
 
 package nl.arietimmerman.u2f.server.message;
 
+/**
+ * RegistrationResponse as defined in https://fidoalliance.org/specs/fido-u2f-v1.0-nfc-bt-amendment-20150514/fido-u2f-javascript-api.html#idl-def-RegisterResponse
+ */
 public class RegistrationResponse {
 
 	private String sessionId;

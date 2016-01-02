@@ -98,6 +98,7 @@ public abstract class DataStore {
 		HashMap<String, SignSessionData> result = new HashMap<String, SignSessionData>();
 
 		for (DataStoreElement securityKeyData : getRegistrationData(identity)) {
+			
 			SignSessionData signSessionData = new SignSessionData(VerificationHelper.generateSessionId(), accountName, getRequiredOrigin(), VerificationHelper.generateChallenge(), securityKeyData.getPublicKey(), securityKeyData.getKeyHandle());
 			
 			storeSessionData(signSessionData);

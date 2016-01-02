@@ -18,7 +18,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.net.ssl.SSLException;
 import javax.security.auth.Subject;
 
 import org.apache.commons.codec.binary.Base64;
@@ -47,9 +46,6 @@ import com.sun.identity.idm.IdType;
 import com.sun.identity.shared.datastruct.CollectionHelper;
 import com.sun.identity.shared.debug.Debug;
 
-/**
- * 
- */
 abstract class U2FAMLoginModule extends AMLoginModule {
 
 	// Name for the debug-log
@@ -116,7 +112,11 @@ abstract class U2FAMLoginModule extends AMLoginModule {
 
 		return token;
 	}
-
+	
+	/**
+	 * Returns an {@link AMIdentity} object of the logged in user. 
+	 * @return
+	 */
 	public AMIdentity getIdentity() {
 
 		String userName = null;
@@ -142,6 +142,11 @@ abstract class U2FAMLoginModule extends AMLoginModule {
 		return identity;
 	}
 
+	/**
+	 * Returns an {@link AMIdentity} object based on the userName
+	 * @param userName
+	 * @return
+	 */
 	public AMIdentity getIdentity(String userName) {
 		AMIdentity amIdentity = null;
 		AMIdentityRepository amIdRepo = getAMIdentityRepository(getRequestOrg());
@@ -174,6 +179,10 @@ abstract class U2FAMLoginModule extends AMLoginModule {
 		return amIdentity;
 	}
 
+	/**
+	 * Returns a listed of trusted attestation certificates.
+	 * @return
+	 */
 	private Set<X509Certificate> getTrustedCertificates() {
 		Set<X509Certificate> trustedCertificates = new HashSet<X509Certificate>();
 
@@ -195,16 +204,25 @@ abstract class U2FAMLoginModule extends AMLoginModule {
 
 		return trustedCertificates;
 	}
-
+	
+	/**
+	 * Returns whether or not attestation certificates should be checked, or if all attestation certificates - and thus all U2F devices - are allowed.
+	 * @return
+	 */
 	private Boolean getTrustAll() {
 		return Boolean.valueOf(CollectionHelper.getMapAttr(options, KEY_TRUST_ALL));
 	}
-
+	
 	protected DataStore getDataStore() {
 		return this.datastore;
 	}
 
-	protected String getLoginJavascript(HashMap<String, SignSessionData> signData) {
+	/**
+	 * Returns the JavaScript used to communicate with the U2F device for signin in
+	 * @param signData
+	 * @return
+	 */
+	protected String getLoginJavaScript(HashMap<String, SignSessionData> signData) {
 
 		String script = String.format("var incomingSignData = %s;", DataStoreHelper.serialize(signData));
 
@@ -221,7 +239,12 @@ abstract class U2FAMLoginModule extends AMLoginModule {
 
 	}
 
-	protected String getRegistrationJavascript(RegistrationSessionData registrationSessionData) {
+	/**
+	 * Returns the JavaScript used to communicate with the U2F device for registering
+	 * @param registrationSessionData
+	 * @return
+	 */
+	protected String getRegistrationJavaScript(RegistrationSessionData registrationSessionData) {
 
 		String script = String.format("var registrationData = %s;", DataStoreHelper.serialize(registrationSessionData));
 
@@ -237,18 +260,34 @@ abstract class U2FAMLoginModule extends AMLoginModule {
 		return script;
 	}
 
+	/**
+	 * Returns the configured Application Identifier
+	 * @return
+	 */
 	protected String getAppId() {
 		return CollectionHelper.getMapAttr(options, KEY_APP_ID);
 	}
 
+	/**
+	 * Returns whether or not this plugin is configured to allow management of devices ONLY, and thus login is not allowed
+	 * @return
+	 */
 	protected Boolean isManageOnly() {
 		return StringUtils.equalsIgnoreCase(CollectionHelper.getMapAttr(options, KEY_USAGE), "manage");
 	}
 
+	/**
+	 * Returns whether or not this plugin is configured to allow management of devices
+	 * @return
+	 */
 	protected Boolean isManageAllowed() {
 		return StringUtils.containsIgnoreCase(CollectionHelper.getMapAttr(options, KEY_USAGE), "manage");
 	}
 
+	/**
+	 * Returns whether or not this plugin is configured to allow log in
+	 * @return
+	 */
 	protected Boolean isLoginAllowed() {
 		return isManageOnly() || StringUtils.containsIgnoreCase(CollectionHelper.getMapAttr(options, KEY_USAGE), "login");
 	}

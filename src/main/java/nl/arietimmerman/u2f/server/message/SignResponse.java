@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2015 Arie Timmerman. All rights reserved.
  *******************************************************************************/
-/*
- * Response of the client to the server
- */
 
 package nl.arietimmerman.u2f.server.message;
 
+/**
+ * SignResponse as defined in https://fidoalliance.org/specs/fido-u2f-v1.0-nfc-bt-amendment-20150514/fido-u2f-javascript-api.html#idl-def-SignResponse
+ */
 public class SignResponse {
 
 	private String sessionId;

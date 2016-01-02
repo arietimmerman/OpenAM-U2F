@@ -7,6 +7,9 @@
 
 package nl.arietimmerman.u2f.server.message;
 
+/**
+ * RegisterRequest as defined in https://fidoalliance.org/specs/fido-u2f-v1.0-nfc-bt-amendment-20150514/fido-u2f-javascript-api.html#idl-def-RegisterRequest
+ */
 public class RegistrationSessionData  {
 	
 	public String version = "U2F_V2";

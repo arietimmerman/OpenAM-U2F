@@ -1,14 +1,14 @@
 /*******************************************************************************
  * Copyright 2015 Arie Timmerman. All rights reserved.
  *******************************************************************************/
-/*
- * Server data to initiate login request 
- */
 
 package nl.arietimmerman.u2f.server.message;
 
 import nl.arietimmerman.u2f.server.message.RegistrationSessionData;
 
+/**
+ * SignSessionData as defined in https://fidoalliance.org/specs/fido-u2f-v1.0-nfc-bt-amendment-20150514/fido-u2f-javascript-api.html#idl-def-SignRequest
+ */
 public class SignSessionData extends RegistrationSessionData {
 	
 	private final byte[] publicKey;
