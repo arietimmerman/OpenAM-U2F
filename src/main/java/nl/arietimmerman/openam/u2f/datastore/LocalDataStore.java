@@ -14,8 +14,11 @@ import com.owlike.genson.GenericType;
 import com.sun.identity.idm.AMIdentity;
 import com.sun.identity.idm.IdRepoException;
 
+/**
+ * Implementation of {@link DataStore} for storing device registrations in the OpenAM Identity Store, for example OpenDJ.
+ */
 public class LocalDataStore extends DataStore {
-
+	
 	private final static String ATTRIBUTE_NAME = "u2fdevices";
 	
 	public LocalDataStore(String requiredOrigin, Set<X509Certificate> trustedCertificates, Boolean trustAll){ 

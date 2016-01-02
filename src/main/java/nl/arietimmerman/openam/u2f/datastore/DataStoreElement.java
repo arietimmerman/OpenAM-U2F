@@ -14,6 +14,9 @@ import java.util.Date;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+/**
+ * A single record in the {@link DataStore}, storing information of a single registered device.
+ */
 public class DataStoreElement {
 	private final String accountName;
 	private final String deviceName;

@@ -47,6 +47,9 @@ import com.sun.identity.idm.IdType;
 import com.sun.identity.shared.datastruct.CollectionHelper;
 import com.sun.identity.shared.debug.Debug;
 
+/**
+ * 
+ */
 abstract class U2FAMLoginModule extends AMLoginModule {
 
 	// Name for the debug-log

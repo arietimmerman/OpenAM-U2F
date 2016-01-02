@@ -17,6 +17,9 @@ import com.owlike.genson.GensonBuilder;
 import com.owlike.genson.stream.ObjectReader;
 import com.owlike.genson.stream.ObjectWriter;
 
+/**
+ * Implements methods to serialize and deserialize objects to JSON objects represented as strings.  
+ */
 public class DataStoreHelper {
 
 	private final static Genson genson = new GensonBuilder().useConstructorWithArguments(true).withConverter(new ByteConverter(), byte[].class).withConverter(new X509Converter(), X509Certificate.class).create();

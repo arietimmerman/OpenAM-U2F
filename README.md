@@ -55,6 +55,12 @@ Out of the box, ForgeRock OpenAM supports a lot of authentication standards. How
 6. Restart OpenAM.
 7. Configure the module. At a minimum, configure an *App Id*. Make sure you use a HTTPS-url as the *App Id*.	
 
+## How to prepare OpenDJ for storing device data
+
+In order to use OpenDJ - or any other LDAPv3 Directory - simply import the *ldif* file found in the directory *example*.
+After that, configure the module to use the OpenAM Identity Store for storing device data.
+Also, do not forget to configure the identity store in OpenAM to accept the attribute *u2fdevices*.
+
 ## Known issues
 
 Currently, there are some issues known.

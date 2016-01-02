@@ -29,6 +29,9 @@ import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * This class contains all methods to verify RegistrationResponse, ClientData and SignResponse objects, i.e. the verify all FIDO U2F messages.
+ */
 public class VerificationHelper {
 
 	private static final Logger Log = Logger.getLogger(VerificationHelper.class.getName());
@@ -36,27 +39,21 @@ public class VerificationHelper {
 	private static final String TYPE_PARAM = "typ";
 	private static final String CHALLENGE_PARAM = "challenge";
 	private static final String ORIGIN_PARAM = "origin";
-	
+
 	private static final String MESSAGETYPE_FINISH_ENROLLMENT = "navigator.id.finishEnrollment";
 	private static final String MESSAGETYPE_GET_ASSERTION = "navigator.id.getAssertion";
-	
 
 	private static VerificationHelper instance;
 	public static final byte USER_PRESENT_FLAG = 0x01;
 
-	public static VerificationHelper getInstance() {
-
-		if (instance == null) {
-			instance = new VerificationHelper();
-		}
-
-		return instance;
-
-	}
-
-	// A session id is 32 bytes
-	// TODO: check specs on session id requirements
+	/**
+	 * Generates a session identifier
+	 * 
+	 * @return web-safe Base64 encoded session identifier
+	 */
 	public static String generateSessionId() {
+		// TODO: check specs on session id requirements
+
 		byte[] s = new byte[32];
 		new SecureRandom().nextBytes(s);
 		return Base64.encodeBase64URLSafeString(s);
@@ -70,11 +67,7 @@ public class VerificationHelper {
 	}
 
 	/**
-	 * Client Data contains the following type (the constant
-	 * 'navigator.id.getAssertion' for authentication, and
-	 * 'navigator.id.finishEnrollment' for registration) challenge (the
-	 * websafe-base64-encoded challenge provided by the relying party) origin
-	 * (the facet id of the caller, i.e., the web origin of the relying party)
+	 * Client Data contains the following type (the constant 'navigator.id.getAssertion' for authentication, and 'navigator.id.finishEnrollment' for registration) challenge (the websafe-base64-encoded challenge provided by the relying party) origin (the facet id of the caller, i.e., the web origin of the relying party)
 	 * 
 	 * @param clientData
 	 * @param messageType
@@ -83,9 +76,7 @@ public class VerificationHelper {
 	 * @throws JSONException
 	 */
 	public static void verifyClientData(JSONObject clientData, String messageType, RegistrationSessionData sessionData, String origin) throws IOException, JSONException {
-
-		// check that the right "typ" parameter is present in the browserdata
-		// JSON
+		
 		if (!clientData.has(TYPE_PARAM)) {
 			throw new IOException("bad browserdata: missing 'typ' param");
 		}
@@ -113,9 +104,9 @@ public class VerificationHelper {
 		// TODO: Deal with ChannelID
 	}
 
-	private static void verifyOrigin(String origin, String originFound) throws IOException  {
-		if(!StringUtils.equals(origin, originFound)){
-			throw new IOException(String.format("Incorrect origin. Expected %s but found %s", origin,originFound));
+	private static void verifyOrigin(String origin, String originFound) throws IOException {
+		if (!StringUtils.equals(origin, originFound)) {
+			throw new IOException(String.format("Incorrect origin. Expected %s but found %s", origin, originFound));
 		}
 	}
 
@@ -141,7 +132,8 @@ public class VerificationHelper {
 		// registrationData is a base64-encoded byte string containing the
 		// following data
 		// +----------------+-----------------------+----------------------------+----------------+---------------------------------+------------+
-		// |1 (always 0x05) | 64 (user public key) | 1 (length L for next part)  | L (key handle) | X.509 certificate in DER format | signature |
+		// |1 (always 0x05) | 64 (user public key) | 1 (length L for next part)
+		// | L (key handle) | X.509 certificate in DER format | signature |
 		// +----------------+-----------------------+----------------------------+----------------+---------------------------------+------------+
 		//
 
@@ -214,30 +206,30 @@ public class VerificationHelper {
 		// 8. Verify attestation certificate
 		if (!trustedCertificates.contains(attestationCertificate)) {
 			if (!trustAll) {
-				//FIXME: improve
-				try {					
+				try {
 					Log.info("Not trusted: " + Base64.encodeBase64String(attestationCertificate.getEncoded()));
-				} catch (CertificateEncodingException e) {
-					e.printStackTrace();
+				} catch (CertificateEncodingException ignore) {
 				}
+
 				throw new VerificationException("Attestion certificate is not trusted");
 			} else {
 				Log.info("Attestion certificate is not trusted");
 			}
-		}else{
+		} else {
 			Log.info("Attestion certificate IS trusted");
 		}
 
 		return new DataStoreElement(sessionData.getAccountName(), keyHandle, userPublicKey, attestationCertificate);
 	}
 
-	//FIXME: check for trustedCertificates here as well. Could be that something has been removed from the white list after registering
+	// FIXME: check for trustedCertificates here as well. Could be that
+	// something has been removed from the white list after registering
 	public static DataStoreElement verifySignData(SignResponse signResponse, SignSessionData signSessionData, Set<DataStoreElement> registrationDataList, String requiredOrigin) throws VerificationException {
-		//signResponse.getClientData(), signResponse.getSignatureData(), signResponse.getAppId()
+
 		byte[] clientDataRaw = signResponse.getClientData();
 		byte[] signatureData = signResponse.getSignatureData();
 		String appId = signResponse.getAppId();
-				
+
 		String clientData = new String(clientDataRaw);
 
 		if (signSessionData == null) {
@@ -291,7 +283,7 @@ public class VerificationHelper {
 
 			// 3. Read the counter
 			counter = inputStream.readInt(); // i.e. 4 bytes
-			
+
 			if (counter <= registrationData.getCounter()) {
 				throw new VerificationException("Counter value smaller than expected!");
 			}
@@ -312,17 +304,14 @@ public class VerificationHelper {
 
 		byte[] signedBytes = new byte[appIdHash.length + 1 + 4 + clientDataHash.length];
 		ByteBuffer.wrap(signedBytes).put(appIdHash).put(userPresence).putInt(counter).put(clientDataHash);
-		
+
 		if (!CryptoHelper.verifySignature(CryptoHelper.decodePublicKey(registrationData.getPublicKey()), signedBytes, signature)) {
 			throw new VerificationException("Signature is invalid");
 		}
 
 		registrationData.setCounter(counter);
 
-		// 6. Store the counter's value
-
-		Log.info("succesfully logged in!");
-
+		// return the registrationData with the updated counter
 		return registrationData;
 	}
 

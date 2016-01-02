@@ -208,14 +208,14 @@ public class U2F extends U2FAMLoginModule {
 
 	private Callback createSignScriptCallback(AMIdentity amIdentity) {
 		
-		String script = getLoginJavascript(getDataStore().getSignSessionData(getIdentity()));
+		String script = getLoginJavascript(getDataStore().generateSignSessionData(getIdentity()));
 		
 		return new ScriptTextOutputCallback(script);
 	}
 
 	private Callback createRegisterScriptCallback(AMIdentity identity) {
 
-		String script = getRegistrationJavascript(getDataStore().getRegistrationRequestData(getIdentity()));
+		String script = getRegistrationJavascript(getDataStore().generateRegistrationSessionData(getIdentity()));
 
 		return new ScriptTextOutputCallback(script);
 	}

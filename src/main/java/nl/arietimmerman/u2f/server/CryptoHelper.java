@@ -23,6 +23,9 @@ import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.jce.spec.ECPublicKeySpec;
 import org.bouncycastle.math.ec.ECPoint;
 
+/**
+ * Helps to verify signatures present in all FIDO U2F responses
+ */
 public class CryptoHelper {
 
 	
