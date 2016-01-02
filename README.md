@@ -31,23 +31,33 @@ Out of the box, ForgeRock OpenAM supports a lot of authentication standards. How
 
 ## How to install it
 
-1.  Ensure you can access OpenAM over HTTPS. Without HTTPS, FIDO U2F cannot work. Moreover, make sure the XUI interface is enabled.
-2.  Download the source with git.
-3.  Build the module with Maven. 
-    `mvn clean package`
-4.  Copy the resulting jar file named "openam-u2f-0.5.jar" from the "target" directory, as well as all its dependencies found in the "target/dependencies" directory, to the "WEB-INF/lib" directory op OpenAM.
+1.  Ensure you can access OpenAM over HTTPS. Without HTTPS, FIDO U2F cannot work.
+  
+  Moreover, make sure the XUI interface is enabled.
+2.  Download the source with Git.
+3.  Build the module with Maven.
+  
+  ```
+  mvn clean package
+  ```
+  
+4.  Copy the resulting jar file named *openam-u2f-[VERSION].jar* from the directory *target*, as well as all its dependencies found in the directory *target/dependencies*, to the  directory *WEB-INF/lib* of your OpenAM installation.
 5.   Install the module using the [OpenAM tools](https://backstage.forgerock.com/#!/docs/openam/12.0.0/install-guide/chap-install-tools "OpenAM tools").
-
-`./ssoadm create-svc -u amadmin -f /location/of/your/password --xmlfile 'src/main/resources/amAuthU2F.xml'`
-
-`./ssoadm register-auth-module --adminid amadmin --password-file /tmp/pwd.txt --authmodule nl.arietimmerman.openam.u2f.U2F`
-	
+  
+  ```
+  ssoadm create-svc -u amadmin -f /location/of/your/password --xmlfile 'src/main/resources/amAuthU2F.xml'
+  ```
+  
+  ```
+  ssoadm register-auth-module -u amadmin -f /location/of/your/password --authmodule nl.arietimmerman.openam.u2f.U2F
+  ```
+  
 6. Restart OpenAM.
-7. Configure the module. For testing, only an "App Id" is required. Make sure you use a HTTPS-url.	
+7. Configure the module. At a minimum, configure an *App Id*. Make sure you use a HTTPS-url as the *App Id*.	
 
 ## Known issues
 
 Currently, there are some issues known.
 
-*   ForgeRock OpenAM renders a ChoiceCallback element that allows multiple selections, as radio buttons. Hence, it is not possible to select multiple options. This functionality is used in the device listing.
-*   The module requires that the XUI interface is enabled because of the usage of ScriptTextOutputCallback elements.
+*   ForgeRock OpenAM renders a *ChoiceCallback* element as radio buttons. Even when it is configured to allow multiple selections.Hence, it is not possible to select multiple options. This functionality is used in the device listing.
+*   The module requires that the XUI interface is enabled because of the usage of *ScriptTextOutputCallback* elements.
