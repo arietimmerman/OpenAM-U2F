@@ -6,21 +6,21 @@
 
 <ServicesConfiguration>
 	<Service name="iPlanetAMAuthU2FService" version="1.0">
-		<Schema serviceHierarchy="/DSAMEConfig/authentication/iPlanetAMAuthU2FService" i18nFileName="u2f" revisionNumber="12" i18nKey="u2f-service-description">
+		<Schema serviceHierarchy="/DSAMEConfig/authentication/iPlanetAMAuthU2FService" i18nFileName="u2f" revisionNumber="13" i18nKey="u2f-service-description" resourceName="iPlanetAMAuthU2FService">
 			<Organization>
-				<AttributeSchema name="iplanet-am-auth-u2f-auth-level" type="single" syntax="number_range" rangeStart="0" rangeEnd="2147483647" i18nKey="a500">
+				<AttributeSchema name="iplanet-am-auth-u2f-auth-level" type="single" syntax="number_range" rangeStart="0" rangeEnd="2147483647" i18nKey="a500" resourceName="authLevel">
 					<DefaultValues>
 						<Value>1</Value>
 					</DefaultValues>
 				</AttributeSchema>
 
-				<AttributeSchema name="nl-arietimmerman-openam-u2f-appid" type="single" syntax="string" validator="no" i18nKey="u2f-appId">
+				<AttributeSchema name="nl-arietimmerman-openam-u2f-appid" type="single" syntax="string" validator="no" i18nKey="u2f-appId" resourceName="appid">
 					<DefaultValues>
 						<Value></Value>
 					</DefaultValues>
 				</AttributeSchema>
 				
-				<AttributeSchema name="nl-arietimmerman-openam-u2f-usage" type="single_choice" syntax="string" i18nKey="u2f-usage">
+				<AttributeSchema name="nl-arietimmerman-openam-u2f-usage" type="single_choice" syntax="string" i18nKey="u2f-usage" resourceName="usage">
 					<ChoiceValues>
 						<ChoiceValue i18nKey="u2f-usage-login-and-manage">login_and_manage</ChoiceValue>
 						<ChoiceValue i18nKey="u2f-usage-login">login</ChoiceValue>
@@ -31,7 +31,7 @@
 					</DefaultValues>
 				</AttributeSchema>
 				
-				<AttributeSchema name="nl-arietimmerman-openam-u2f-datastore" type="single_choice" syntax="string" i18nKey="u2f-datastore">
+				<AttributeSchema name="nl-arietimmerman-openam-u2f-datastore" type="single_choice" syntax="string" i18nKey="u2f-datastore" resourceName="datastore">
 					<ChoiceValues>
 						<ChoiceValue i18nKey="u2f-memory-data-store">memory</ChoiceValue>
 						<ChoiceValue i18nKey="u2f-local-data-store">local</ChoiceValue>
@@ -41,7 +41,7 @@
 					</DefaultValues>
 				</AttributeSchema>
 				
-				<AttributeSchema name="nl-arietimmerman-openam-u2f-verify" type="single" syntax="boolean" i18nKey="u2f-trust-all">
+				<AttributeSchema name="nl-arietimmerman-openam-u2f-verify" type="single" syntax="boolean" i18nKey="u2f-trust-all" resourceName="trust">
 					<BooleanValues>
 						<BooleanTrueValue i18nKey="true">true</BooleanTrueValue>
 						<BooleanFalseValue i18nKey="false">false</BooleanFalseValue>
@@ -51,24 +51,24 @@
 					</DefaultValues>
 				</AttributeSchema>
 
-				<AttributeSchema name="nl-arietimmerman-openam-u2f-trustedCertificates" type="single" syntax="xml" i18nKey="u2f-trusted-certificates">
+				<AttributeSchema name="nl-arietimmerman-openam-u2f-trustedCertificates" type="single" syntax="xml" i18nKey="u2f-trusted-certificates" resourceName="certificates">
 				</AttributeSchema>
 
-				<SubSchema name="serverconfig" inheritance="multiple">
+				<SubSchema name="serverconfig" inheritance="multiple" resourceName="USE-PARENT">
 
-					<AttributeSchema name="iplanet-am-auth-u2f-auth-level" type="single" syntax="number_range" rangeStart="0" rangeEnd="2147483647" i18nKey="a500">
+					<AttributeSchema name="iplanet-am-auth-u2f-auth-level" type="single" syntax="number_range" rangeStart="0" rangeEnd="2147483647" i18nKey="a500" resourceName="authLevel">
 					<DefaultValues>
 						<Value>1</Value>
 					</DefaultValues>
 				</AttributeSchema>
 
-				<AttributeSchema name="nl-arietimmerman-openam-u2f-appid" type="single" syntax="string" validator="no" i18nKey="u2f-appId">
+				<AttributeSchema name="nl-arietimmerman-openam-u2f-appid" type="single" syntax="string" validator="no" i18nKey="u2f-appId" resourceName="appid">
 					<DefaultValues>
 						<Value></Value>
 					</DefaultValues>
 				</AttributeSchema>
 				
-				<AttributeSchema name="nl-arietimmerman-openam-u2f-usage" type="single_choice" syntax="string" i18nKey="u2f-usage">
+				<AttributeSchema name="nl-arietimmerman-openam-u2f-usage" type="single_choice" syntax="string" validator="no" i18nKey="u2f-usage" resourceName="usage">
 					<ChoiceValues>
 						<ChoiceValue i18nKey="u2f-usage-login-and-manage">login_and_manage</ChoiceValue>
 						<ChoiceValue i18nKey="u2f-usage-login">login</ChoiceValue>
@@ -79,7 +79,7 @@
 					</DefaultValues>
 				</AttributeSchema>
 				
-				<AttributeSchema name="nl-arietimmerman-openam-u2f-datastore" type="single_choice" syntax="string" i18nKey="u2f-datastore">
+				<AttributeSchema name="nl-arietimmerman-openam-u2f-datastore" type="single_choice" syntax="string" i18nKey="u2f-datastore" resourceName="datastore">
 					<ChoiceValues>
 						<ChoiceValue i18nKey="u2f-memory-data-store">memory</ChoiceValue>
 						<ChoiceValue i18nKey="u2f-local-data-store">local</ChoiceValue>
@@ -89,7 +89,7 @@
 					</DefaultValues>
 				</AttributeSchema>
 				
-				<AttributeSchema name="nl-arietimmerman-openam-u2f-verify" type="single" syntax="boolean" i18nKey="u2f-trust-all">
+				<AttributeSchema name="nl-arietimmerman-openam-u2f-verify" type="single" syntax="boolean" i18nKey="u2f-trust-all" resourceName="trust">
 					<BooleanValues>
 						<BooleanTrueValue i18nKey="true">true</BooleanTrueValue>
 						<BooleanFalseValue i18nKey="false">false</BooleanFalseValue>
@@ -99,7 +99,7 @@
 					</DefaultValues>
 				</AttributeSchema>
 
-				<AttributeSchema name="nl-arietimmerman-openam-u2f-trustedCertificates" type="single" syntax="xml" i18nKey="u2f-trusted-certificates">
+				<AttributeSchema name="nl-arietimmerman-openam-u2f-trustedCertificates" type="single" syntax="xml" i18nKey="u2f-trusted-certificates" resourceName="certificates">
 				</AttributeSchema>
 
 				</SubSchema>
