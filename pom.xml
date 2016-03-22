@@ -3,10 +3,10 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>nl.arietimmerman</groupId>
 	<artifactId>openam-u2f</artifactId>
-	<version>0.5</version>
+	<version>0.6</version>
 
 	<properties>
-		<openam.version>12.0.0</openam.version>
+		<openam.version>13.0.0</openam.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
@@ -34,7 +34,7 @@
 			<version>${openam.version}</version>
 			<scope>provided</scope>
 		</dependency>
-
+		
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
