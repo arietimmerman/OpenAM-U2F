@@ -17,7 +17,9 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import nl.arietimmerman.openam.u2f.datastore.DataStoreElement;
+import nl.arietimmerman.openam.u2f.datastore.DataStoreHelper;
 import nl.arietimmerman.openam.u2f.exception.VerificationException;
+import nl.arietimmerman.u2f.server.message.ClientData;
 import nl.arietimmerman.u2f.server.message.RegistrationResponse;
 import nl.arietimmerman.u2f.server.message.RegistrationSessionData;
 import nl.arietimmerman.u2f.server.message.SignResponse;
@@ -36,12 +38,7 @@ public class VerificationHelper {
 
 	private static final Logger Log = Logger.getLogger(VerificationHelper.class.getName());
 
-	private static final String TYPE_PARAM = "typ";
-	private static final String CHALLENGE_PARAM = "challenge";
-	private static final String ORIGIN_PARAM = "origin";
-
-	private static final String MESSAGETYPE_FINISH_ENROLLMENT = "navigator.id.finishEnrollment";
-	private static final String MESSAGETYPE_GET_ASSERTION = "navigator.id.getAssertion";
+	
 
 	private static VerificationHelper instance;
 	public static final byte USER_PRESENT_FLAG = 0x01;
@@ -75,27 +72,27 @@ public class VerificationHelper {
 	 * @throws IOException
 	 * @throws JSONException
 	 */
-	public static void verifyClientData(JSONObject clientData, String messageType, RegistrationSessionData sessionData, String origin) throws IOException, JSONException {
+	public static void verifyClientData(ClientData clientData, String messageType, RegistrationSessionData sessionData, String origin) throws IOException, JSONException {
 		
-		if (!clientData.has(TYPE_PARAM)) {
+		if (clientData.getTyp() == null) {
 			throw new IOException("bad browserdata: missing 'typ' param");
 		}
 
-		String type = clientData.getString(TYPE_PARAM);
+		String type = clientData.getTyp();
 		if (!messageType.equals(type)) {
 			throw new IOException("bad browserdata: bad type " + type);
 		}
 
 		// check that the right challenge is in the clientData
-		if (!clientData.has(CHALLENGE_PARAM)) {
+		if (clientData.getChallenge() == null) {
 			throw new IOException("bad browserdata: missing 'challenge' param");
 		}
 
-		if (clientData.has(ORIGIN_PARAM)) {
-			verifyOrigin(origin, clientData.getString(ORIGIN_PARAM));
+		if (clientData.getOrigin() != null) {
+			verifyOrigin(origin, clientData.getOrigin());
 		}
 
-		byte[] challengeFromClientData = Base64.decodeBase64(clientData.getString(CHALLENGE_PARAM));
+		byte[] challengeFromClientData = clientData.getChallenge();
 
 		if (!Arrays.equals(challengeFromClientData, sessionData.getChallenge())) {
 			throw new IOException("wrong challenge signed in browserdata");
@@ -112,18 +109,18 @@ public class VerificationHelper {
 
 	public static DataStoreElement verifyRegistrationResponse(RegistrationResponse registrationResponse, RegistrationSessionData sessionData, Set<X509Certificate> trustedCertificates, Boolean trustAll, String origin) throws VerificationException {
 
-		byte[] rawClientData = registrationResponse.getClientData();
+		ClientData clientData = registrationResponse.getClientData();
 		byte[] bytesRegistrationData = registrationResponse.getRegistrationData();
 
 		// Find the session data used to start enrolling the U2F device. This is
 		// only used to retrieve the original account name
 		String appId = sessionData.getAppId();
-
-		String clientData = new String(rawClientData);
+		
+		Log.info(String.format("Received clientData: %s",clientData));
 
 		// 1. Verify the clientData
 		try {
-			VerificationHelper.verifyClientData(new JSONObject(clientData), MESSAGETYPE_FINISH_ENROLLMENT, sessionData, origin);
+			VerificationHelper.verifyClientData(clientData, ClientData.MESSAGETYPE_FINISH_ENROLLMENT, sessionData, origin);
 		} catch (IOException | JSONException e) {
 			throw new VerificationException(e);
 		}
@@ -163,19 +160,30 @@ public class VerificationHelper {
 		// 4. Read the length of the key handle, and the key handle itself
 		byte[] keyHandle;
 		try {
-			keyHandle = new byte[inputStream.readUnsignedByte()];
+			int length = inputStream.readUnsignedByte();
+			
+			System.out.println("Length is now: " + length);
+			keyHandle = new byte[length];
 			inputStream.readFully(keyHandle);
 		} catch (IOException e) {
 			throw new VerificationException(e);
 		}
+		
+		System.out.println("keyHandle: " + Base64.encodeBase64String(keyHandle));
 
 		// 5. Read an X.509 certificate from the inputstream
 		X509Certificate attestationCertificate = null;
 
 		try {
+			
 			attestationCertificate = (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(inputStream);
-		} catch (CertificateException ignore) {
-
+		} catch (CertificateException e) {
+			e.printStackTrace();
+		}
+		
+		
+		if(attestationCertificate == null){
+			Log.info("attestationCertificate is null");
 		}
 
 		// 6. Read the signature from the remaining bytes
@@ -189,22 +197,24 @@ public class VerificationHelper {
 
 		// 7. Verify the signature
 		byte[] appIdSha256 = CryptoHelper.sha256(appId.getBytes());
-		byte[] clientDataHash = CryptoHelper.sha256(clientData.getBytes());
-
+		
+		byte[] clientDataHash = CryptoHelper.sha256(Base64.decodeBase64(DataStoreHelper.serializeString(clientData)));
+		
 		byte[] signedBytes = new byte[1 + appIdSha256.length + clientDataHash.length + keyHandle.length + userPublicKey.length];
 
 		ByteBuffer.wrap(signedBytes).put((byte) 0x00).put(appIdSha256).put(clientDataHash).put(keyHandle).put(userPublicKey);
 
-		Log.info("Verifying signature of bytes " + Hex.encodeHexString(signedBytes));
+		Log.info("Verifying signature of bytes (1) " + Hex.encodeHexString(signedBytes));
 
 		if (!CryptoHelper.verifySignature(attestationCertificate.getPublicKey(), signedBytes, signature)) {
+			Log.info("Signature is invalid!!!");
 			throw new VerificationException("Signature is invalid");
 		} else {
 			Log.info("Signature is valid!!!");
 		}
 
 		// 8. Verify attestation certificate
-		if (!trustedCertificates.contains(attestationCertificate)) {
+		if (trustedCertificates == null || !trustedCertificates.contains(attestationCertificate)) {
 			if (!trustAll) {
 				try {
 					Log.info("Not trusted: " + Base64.encodeBase64String(attestationCertificate.getEncoded()));
@@ -226,19 +236,17 @@ public class VerificationHelper {
 	// something has been removed from the white list after registering
 	public static DataStoreElement verifySignData(SignResponse signResponse, SignSessionData signSessionData, Set<DataStoreElement> registrationDataList, String requiredOrigin) throws VerificationException {
 
-		byte[] clientDataRaw = signResponse.getClientData();
+		ClientData clientData = signResponse.getClientData();
 		byte[] signatureData = signResponse.getSignatureData();
 		String appId = signResponse.getAppId();
-
-		String clientData = new String(clientDataRaw);
 
 		if (signSessionData == null) {
 			throw new VerificationException("Unknown session_id");
 		}
-
+		
 		// 1. Verify the clientData
 		try {
-			VerificationHelper.verifyClientData(new JSONObject(clientData), MESSAGETYPE_GET_ASSERTION, (RegistrationSessionData) signSessionData, requiredOrigin);
+			VerificationHelper.verifyClientData(clientData, ClientData.MESSAGETYPE_GET_ASSERTION, (RegistrationSessionData) signSessionData, requiredOrigin);
 		} catch (IOException | JSONException e) {
 			throw new VerificationException(e);
 		}
@@ -299,9 +307,8 @@ public class VerificationHelper {
 		// A signature should be set for the app id, user presence, counter and
 		// the client data
 		byte[] appIdHash = CryptoHelper.sha256(appId.getBytes());
-
-		byte[] clientDataHash = CryptoHelper.sha256(clientData.getBytes());
-
+		byte[] clientDataHash = CryptoHelper.sha256(DataStoreHelper.serializeString(clientData).getBytes());
+		
 		byte[] signedBytes = new byte[appIdHash.length + 1 + 4 + clientDataHash.length];
 		ByteBuffer.wrap(signedBytes).put(appIdHash).put(userPresence).putInt(counter).put(clientDataHash);
 

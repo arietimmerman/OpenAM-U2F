@@ -10,15 +10,16 @@ package nl.arietimmerman.u2f.server.message;
 public class SignResponse {
 
 	private String sessionId;
-	private byte[] clientData;
+	private ClientData clientData;
 	private byte[] signatureData;
 	private String appId;
+	private byte[] keyHandle;
 	
 	public SignResponse() {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public void setClientData(byte[] clientData) {
+	public void setClientData(ClientData clientData) {
 		this.clientData = clientData;
 	}
 	
@@ -30,7 +31,7 @@ public class SignResponse {
 		this.sessionId = sessionId;
 	}
 	
-	public byte[] getClientData() {
+	public ClientData getClientData() {
 		return clientData;
 	}
 	
@@ -48,6 +49,14 @@ public class SignResponse {
 	
 	public String getSessionId() {
 		return sessionId;
+	}
+
+	public byte[] getKeyHandle() {
+		return keyHandle;
+	}
+
+	public void setKeyHandle(byte[] keyHandle) {
+		this.keyHandle = keyHandle;
 	}
 	
 }

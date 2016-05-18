@@ -4,6 +4,11 @@
 
 package nl.arietimmerman.u2f.server.message;
 
+import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
+
+import com.owlike.genson.annotation.JsonIgnore;
+
 import nl.arietimmerman.u2f.server.message.RegistrationSessionData;
 
 /**
@@ -14,6 +19,8 @@ public class SignSessionData extends RegistrationSessionData {
 	private final byte[] publicKey;
 	
 	public final byte[] keyHandle;
+	
+	public byte[] signedBytes;
 	
 	public SignSessionData(String sessionId, String accountName, String appId, byte[] challenge, byte[] publicKey, byte[] keyHandle) {
 		super(sessionId, accountName, appId, challenge);
@@ -28,4 +35,28 @@ public class SignSessionData extends RegistrationSessionData {
 	public byte[] getKeyHandle() {
 		return keyHandle;
 	}
+	
+	
+	/*
+    The application parameter [32 bytes] from the authentication request message.
+
+    The above user presence byte [1 byte].
+
+    The above counter [4 bytes].
+
+    The challenge parameter [32 bytes] from the authentication request message.
+    
+    //not included in SignSessionData normally
+	 */
+	public byte[] getSignedBytes(){
+		return signedBytes;
+	}
+	
+	public void updateSignedBytes(Integer counter){
+		byte[] signedBytes = new byte[32 + 1 + 4 + 32];
+		ByteBuffer.wrap(signedBytes).put(this.getAppIdHash()).put((byte)0x01).putInt(counter).put(this.getChallenge());
+		
+		this.signedBytes = signedBytes;
+	}
+	
 }

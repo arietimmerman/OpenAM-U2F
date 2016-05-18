@@ -10,10 +10,12 @@ package nl.arietimmerman.u2f.server;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.logging.Logger;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.bouncycastle.asn1.sec.SECNamedCurves;
@@ -28,6 +30,7 @@ import org.bouncycastle.math.ec.ECPoint;
  */
 public class CryptoHelper {
 
+	private static final Logger Log = Logger.getLogger(CryptoHelper.class.getName());
 	
 	private CryptoHelper() {
 		
@@ -41,16 +44,33 @@ public class CryptoHelper {
 	 * @return
 	 */
 	public static boolean verifySignature(PublicKey publicKey, byte[] bytesSigned, byte[] signature)  {
-		
+		Log.info("start verifySignature");
 		try {
 			Signature signatureObject = Signature.getInstance("SHA256withECDSA", new BouncyCastleProvider());
+			Log.info("Initialized SHA256withECDSA");
 			signatureObject.initVerify(publicKey);
+			Log.info("executed initVerify");
 			signatureObject.update(bytesSigned);
+			Log.info("start verifying");
 			return signatureObject.verify(signature);
 		} catch (InvalidKeyException | SignatureException | NoSuchAlgorithmException e) {
 			e.printStackTrace();
 			return false;
 		}
+	}
+	
+	public static byte[] sign(PrivateKey privateKey, byte[] message)  {
+		
+		try {
+			Signature signatureObject = Signature.getInstance("SHA256withECDSA", new BouncyCastleProvider());
+			signatureObject.initSign(privateKey);
+			signatureObject.update(message);
+			return signatureObject.sign();
+		} catch (InvalidKeyException | SignatureException | NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
 	}
 	
 	/**

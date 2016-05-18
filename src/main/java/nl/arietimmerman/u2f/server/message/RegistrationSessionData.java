@@ -7,6 +7,9 @@
 
 package nl.arietimmerman.u2f.server.message;
 
+import nl.arietimmerman.openam.u2f.datastore.DataStoreHelper;
+import nl.arietimmerman.u2f.server.CryptoHelper;
+
 /**
  * RegisterRequest as defined in https://fidoalliance.org/specs/fido-u2f-v1.0-nfc-bt-amendment-20150514/fido-u2f-javascript-api.html#idl-def-RegisterRequest
  */
@@ -17,7 +20,7 @@ public class RegistrationSessionData  {
 	public  byte[] challenge;
 	public  String appId;
 	public  String sessionId;
-
+	
 	public RegistrationSessionData() {
 		
 	}
@@ -39,6 +42,10 @@ public class RegistrationSessionData  {
 
 	public String getAppId() {
 		return appId;
+	}
+	
+	public byte[] getAppIdHash() {
+		return CryptoHelper.sha256(appId.getBytes());
 	}
 
 	public String getSessionId() {

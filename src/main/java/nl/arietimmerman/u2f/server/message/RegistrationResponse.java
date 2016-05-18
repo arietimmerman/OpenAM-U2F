@@ -13,14 +13,14 @@ package nl.arietimmerman.u2f.server.message;
 public class RegistrationResponse {
 
 	private String sessionId;
-	private byte[] clientData;
+	private ClientData clientData;
 	private byte[] registrationData;
 	
 	public RegistrationResponse() {
 		
 	}
 	
-	public void setClientData(byte[] clientData) {
+	public void setClientData(ClientData clientData) {
 		this.clientData = clientData;
 	}
 	
@@ -32,7 +32,7 @@ public class RegistrationResponse {
 		this.sessionId = sessionId;
 	}
 	
-	public byte[] getClientData() {
+	public ClientData getClientData() {
 		return clientData;
 	}
 	
