@@ -5,10 +5,12 @@ public class ClientData {
 	protected byte[] challenge;
 	protected String origin;
 	protected String typ;
+	protected String cidPubkey;
 		
 	public static final String TYPE_PARAM = "typ";
 	public static final String CHALLENGE_PARAM = "challenge";
 	public static final String ORIGIN_PARAM = "origin";
+	public static final String CID_PUBKEY_PARAM = "cid_pubkey";
 
 	public static final String MESSAGETYPE_FINISH_ENROLLMENT = "navigator.id.finishEnrollment";
 	public static final String MESSAGETYPE_GET_ASSERTION = "navigator.id.getAssertion";
@@ -25,6 +27,10 @@ public class ClientData {
 		return typ;
 	}
 	
+	public String getCidPubkey() {
+		return cidPubkey;
+	}
+	
 	public void setTyp(String typ) {
 		this.typ = typ;
 	}
@@ -37,18 +43,23 @@ public class ClientData {
 		this.origin = origin;
 	}
 	
+	public void setCidPubkey(String cidPubkey) {
+		this.cidPubkey = cidPubkey;
+	}
+	
 	public ClientData(){
 		
 	}
 	
-	public ClientData(byte[] challenge, String origin, String typ) {
+	public ClientData(byte[] challenge, String origin, String typ, String cidPubkey) {
 		this.challenge = challenge;
 		this.origin = origin;
 		this.typ = typ;
+		this.cidPubkey = cidPubkey;
 	}
 	
 	public ClientData(byte[] challenge, String appId) {
-		new ClientData(challenge, appId, MESSAGETYPE_GET_ASSERTION);
+		new ClientData(challenge, appId, MESSAGETYPE_GET_ASSERTION,null);
 	}
 	
 }

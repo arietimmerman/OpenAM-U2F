@@ -58,7 +58,7 @@ public class SignSessionData extends RegistrationSessionData {
 	public void updateSignedBytes(Integer counter){
 		byte[] signedBytes = new byte[32 + 1 + 4 + 32];
 		
-		ClientData clientData = new ClientData(this.getChallenge(), this.getAppId(), ClientData.MESSAGETYPE_GET_ASSERTION);
+		ClientData clientData = new ClientData(this.getChallenge(), this.getAppId(), ClientData.MESSAGETYPE_GET_ASSERTION, null);
 		byte[] clientDataHash = CryptoHelper.sha256( Base64.decodeBase64(DataStoreHelper.serializeString(clientData).getBytes()));
 		
 		ByteBuffer.wrap(signedBytes).put(this.getAppIdHash()).put((byte)0x01).putInt(counter).put(clientDataHash);

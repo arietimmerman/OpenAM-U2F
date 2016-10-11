@@ -8,10 +8,14 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import nl.arietimmerman.u2f.server.message.ClientData;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,6 +57,9 @@ public class DataStoreHelper {
 		public ClientData deserialize(ObjectReader objectReader, Context context) throws Exception {
 			String base64 = objectReader.valueAsString();
 			
+			System.out.println("raw client data: ");
+			System.out.println(new String(objectReader.valueAsByteArray()));
+			
 			JSONObject json = new JSONObject(new String(Base64.decodeBase64(base64)));
 			
 			ClientData clientData = new ClientData();
@@ -69,12 +76,30 @@ public class DataStoreHelper {
 				clientData.setTyp(json.getString(ClientData.TYPE_PARAM));
 			}
 			
+			if(json.has(ClientData.CID_PUBKEY_PARAM)){
+				clientData.setCidPubkey(json.getString(ClientData.CID_PUBKEY_PARAM));
+			}
+			
 			return clientData;
 		}
 
 		@Override
 		public void serialize(ClientData object, ObjectWriter writer, Context ctx) throws Exception {
-			writer.writeString(Base64.encodeBase64URLSafeString(String.format("{\"typ\":\"%s\",\"challenge\":\"%s\",\"origin\":\"%s\"}",object.getTyp(),DataStoreHelper.serializeString(object.getChallenge()),object.getOrigin()).getBytes()));
+			
+			List<String> elements = new ArrayList<String>(Arrays.asList(new String[]{
+					String.format("\"typ\":\"%s\"",object.getTyp()),
+					String.format("\"challenge\":\"%s\"",DataStoreHelper.serializeString(object.getChallenge())),
+					String.format("\"origin\":\"%s\"",object.getOrigin()),
+					}));
+			
+			if(!StringUtils.isEmpty(object.getCidPubkey())){
+				elements.add(String.format("\"cid_pubkey\":\"%s\"", object.getCidPubkey()));
+			}
+			
+			String json = String.format("{%s}", StringUtils.join(elements, ","));
+			
+			writer.writeString(Base64.encodeBase64URLSafeString(json.getBytes()));
+			
 		}
 
 	}
