@@ -37,7 +37,6 @@ public class DataStoreHelper {
 
 		@Override
 		public byte[] deserialize(ObjectReader objectReader, Context context) throws Exception {
-			System.out.println("start deserialize byte");
 			return Base64.decodeBase64(objectReader.valueAsString());
 		}
 
@@ -84,7 +83,6 @@ public class DataStoreHelper {
 		
 		@Override
 		public X509Certificate deserialize(ObjectReader objectReader, Context context) throws Exception {
-			System.out.println("start deserialize x509");
 			return (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(new ByteArrayInputStream(Base64.decodeBase64(objectReader.valueAsString())));
 		}
 

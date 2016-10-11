@@ -6,8 +6,14 @@ package nl.arietimmerman.u2f.server;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.UnrecoverableEntryException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -205,7 +211,27 @@ public class VerificationHelper {
 		ByteBuffer.wrap(signedBytes).put((byte) 0x00).put(appIdSha256).put(clientDataHash).put(keyHandle).put(userPublicKey);
 
 		Log.info("Verifying signature of bytes (1) " + Hex.encodeHexString(signedBytes));
+		
+		
+		// The following can be used the regenerate the signature, but only if the server has access to the private key (for  test purposes)
+//		InputStream inputStreamKeyStore = VerificationHelper.class.getClassLoader().getResourceAsStream("ectest.jks");
+//		KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+//		keyStore.load(inputStreamKeyStore, "password".toCharArray());
 
+//		Certificate certificate = keyStore.getCertificate("selfsignedtest");
+
+//		KeyStore.PrivateKeyEntry privateKeyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry("ec", new KeyStore.PasswordProtection("password".toCharArray()));
+//		
+//		if (privateKeyEntry.getPrivateKey() == null) {
+//			System.out.println("private is null");
+//		}
+//		
+//		Log.info("With privatekey: " + Hex.encodeHexString(privateKeyEntry.getPrivateKey().getEncoded()));
+//		
+//		byte[] result = CryptoHelper.sign(privateKeyEntry.getPrivateKey(), signedBytes);
+//		
+//		Log.info("Signature result magic: " + Hex.encodeHexString(result) );
+		
 		if (!CryptoHelper.verifySignature(attestationCertificate.getPublicKey(), signedBytes, signature)) {
 			Log.info("Signature is invalid!!!");
 			throw new VerificationException("Signature is invalid");
@@ -291,9 +317,9 @@ public class VerificationHelper {
 
 			// 3. Read the counter
 			counter = inputStream.readInt(); // i.e. 4 bytes
-
+			
 			if (counter <= registrationData.getCounter()) {
-				throw new VerificationException("Counter value smaller than expected!");
+				throw new VerificationException(String.format("Counter value smaller than expected! Got %d, but expected a value larger than %d",counter,registrationData.getCounter()));
 			}
 
 			// 4. Read the signature
@@ -307,11 +333,13 @@ public class VerificationHelper {
 		// A signature should be set for the app id, user presence, counter and
 		// the client data
 		byte[] appIdHash = CryptoHelper.sha256(appId.getBytes());
-		byte[] clientDataHash = CryptoHelper.sha256(DataStoreHelper.serializeString(clientData).getBytes());
+		byte[] clientDataHash = CryptoHelper.sha256(Base64.decodeBase64(DataStoreHelper.serializeString(clientData)));
 		
 		byte[] signedBytes = new byte[appIdHash.length + 1 + 4 + clientDataHash.length];
+		
+		
 		ByteBuffer.wrap(signedBytes).put(appIdHash).put(userPresence).putInt(counter).put(clientDataHash);
-
+		
 		if (!CryptoHelper.verifySignature(CryptoHelper.decodePublicKey(registrationData.getPublicKey()), signedBytes, signature)) {
 			throw new VerificationException("Signature is invalid");
 		}

@@ -7,8 +7,12 @@ package nl.arietimmerman.u2f.server.message;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 
+import org.apache.commons.codec.binary.Base64;
+
 import com.owlike.genson.annotation.JsonIgnore;
 
+import nl.arietimmerman.openam.u2f.datastore.DataStoreHelper;
+import nl.arietimmerman.u2f.server.CryptoHelper;
 import nl.arietimmerman.u2f.server.message.RegistrationSessionData;
 
 /**
@@ -36,7 +40,6 @@ public class SignSessionData extends RegistrationSessionData {
 		return keyHandle;
 	}
 	
-	
 	/*
     The application parameter [32 bytes] from the authentication request message.
 
@@ -44,7 +47,7 @@ public class SignSessionData extends RegistrationSessionData {
 
     The above counter [4 bytes].
 
-    The challenge parameter [32 bytes] from the authentication request message.
+    The hash of the [32 bytes] client data.
     
     //not included in SignSessionData normally
 	 */
@@ -54,7 +57,11 @@ public class SignSessionData extends RegistrationSessionData {
 	
 	public void updateSignedBytes(Integer counter){
 		byte[] signedBytes = new byte[32 + 1 + 4 + 32];
-		ByteBuffer.wrap(signedBytes).put(this.getAppIdHash()).put((byte)0x01).putInt(counter).put(this.getChallenge());
+		
+		ClientData clientData = new ClientData(this.getChallenge(), this.getAppId(), ClientData.MESSAGETYPE_GET_ASSERTION);
+		byte[] clientDataHash = CryptoHelper.sha256( Base64.decodeBase64(DataStoreHelper.serializeString(clientData).getBytes()));
+		
+		ByteBuffer.wrap(signedBytes).put(this.getAppIdHash()).put((byte)0x01).putInt(counter).put(clientDataHash);
 		
 		this.signedBytes = signedBytes;
 	}
