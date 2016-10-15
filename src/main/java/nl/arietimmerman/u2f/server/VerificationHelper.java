@@ -167,28 +167,27 @@ public class VerificationHelper {
 		byte[] keyHandle;
 		try {
 			int length = inputStream.readUnsignedByte();
-			
+
 			System.out.println("Length is now: " + length);
 			keyHandle = new byte[length];
 			inputStream.readFully(keyHandle);
 		} catch (IOException e) {
 			throw new VerificationException(e);
 		}
-		
+
 		System.out.println("keyHandle: " + Base64.encodeBase64String(keyHandle));
 
 		// 5. Read an X.509 certificate from the inputstream
 		X509Certificate attestationCertificate = null;
 
 		try {
-			
+
 			attestationCertificate = (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(inputStream);
 		} catch (CertificateException e) {
 			e.printStackTrace();
 		}
-		
-		
-		if(attestationCertificate == null){
+
+		if (attestationCertificate == null) {
 			Log.info("attestationCertificate is null");
 		}
 
@@ -203,35 +202,19 @@ public class VerificationHelper {
 
 		// 7. Verify the signature
 		byte[] appIdSha256 = CryptoHelper.sha256(appId.getBytes());
-		
-		byte[] clientDataHash = CryptoHelper.sha256(Base64.decodeBase64(DataStoreHelper.serializeString(clientData)));
-		
-		byte[] signedBytes = new byte[1 + appIdSha256.length + clientDataHash.length + keyHandle.length + userPublicKey.length];
 
+		
+		
+		Log.fine("Challenge: " + new String(Base64.encodeBase64URLSafe(clientData.getChallenge())));		
+		Log.fine("client data string: " + new String(Base64.decodeBase64(DataStoreHelper.serializeString(clientData))));
+		
+		 byte[] clientDataHash = CryptoHelper.sha256(Base64.decodeBase64(DataStoreHelper.serializeString(clientData).getBytes()));		
+		byte[] signedBytes = new byte[1 + appIdSha256.length + clientDataHash.length + keyHandle.length + userPublicKey.length];
+		
 		ByteBuffer.wrap(signedBytes).put((byte) 0x00).put(appIdSha256).put(clientDataHash).put(keyHandle).put(userPublicKey);
 
 		Log.info("Verifying signature of bytes (1) " + Hex.encodeHexString(signedBytes));
-		
-		
-		// The following can be used the regenerate the signature, but only if the server has access to the private key (for  test purposes)
-//		InputStream inputStreamKeyStore = VerificationHelper.class.getClassLoader().getResourceAsStream("ectest.jks");
-//		KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-//		keyStore.load(inputStreamKeyStore, "password".toCharArray());
 
-//		Certificate certificate = keyStore.getCertificate("selfsignedtest");
-
-//		KeyStore.PrivateKeyEntry privateKeyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry("ec", new KeyStore.PasswordProtection("password".toCharArray()));
-//		
-//		if (privateKeyEntry.getPrivateKey() == null) {
-//			System.out.println("private is null");
-//		}
-//		
-//		Log.info("With privatekey: " + Hex.encodeHexString(privateKeyEntry.getPrivateKey().getEncoded()));
-//		
-//		byte[] result = CryptoHelper.sign(privateKeyEntry.getPrivateKey(), signedBytes);
-//		
-//		Log.info("Signature result magic: " + Hex.encodeHexString(result) );
-		
 		if (!CryptoHelper.verifySignature(attestationCertificate.getPublicKey(), signedBytes, signature)) {
 			Log.info("Signature is invalid!!!");
 			throw new VerificationException("Signature is invalid");
@@ -317,9 +300,9 @@ public class VerificationHelper {
 
 			// 3. Read the counter
 			counter = inputStream.readInt(); // i.e. 4 bytes
-			
+
 			if (counter <= registrationData.getCounter()) {
-				throw new VerificationException(String.format("Counter value smaller than expected! Got %d, but expected a value larger than %d",counter,registrationData.getCounter()));
+				throw new VerificationException(String.format("Counter value smaller than expected! Got %d, but expected a value larger than %d", counter, registrationData.getCounter()));
 			}
 
 			// 4. Read the signature

@@ -65,5 +65,5 @@ Also, do not forget to configure the identity store in OpenAM to accept the attr
 
 Currently, there are some issues known.
 
-*   ForgeRock OpenAM renders a *ChoiceCallback* element as radio buttons. Even when it is configured to allow multiple selections.Hence, it is not possible to select multiple options. This functionality is used in the device listing.
+*   ForgeRock OpenAM renders a *ChoiceCallback* element as radio buttons. Even when it is configured to allow multiple selections. Hence, it is not possible to select multiple options. This functionality is used in the device listing.
 *   The module requires that the XUI interface is enabled because of the usage of *ScriptTextOutputCallback* elements.
