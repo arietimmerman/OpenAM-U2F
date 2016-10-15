@@ -64,6 +64,7 @@ abstract class U2FAMLoginModule extends AMLoginModule {
 	private final static String KEY_TRUST_ALL = "nl-arietimmerman-openam-u2f-verify";
 	private final static String KEY_USAGE = "nl-arietimmerman-openam-u2f-usage";
 	private final static String KEY_DATASTORE = "nl-arietimmerman-openam-u2f-datastore";
+	private final static String KEY_GOOGLEAPI = "nl-arietimmerman-openam-u2f-googleapi";
 
 	private final static String DATASTORE_MEMORY = "memory";
 	private final static String DATASTORE_LOCAL = "local";
@@ -213,6 +214,14 @@ abstract class U2FAMLoginModule extends AMLoginModule {
 		return Boolean.valueOf(CollectionHelper.getMapAttr(options, KEY_TRUST_ALL));
 	}
 	
+	/**
+	 * Check whether or not to include Google's u2f-api.js, see https://github.com/google/u2f-ref-code/blob/master/u2f-gae-demo/war/js/u2f-api.js
+	 * @return
+	 */
+	private Boolean getUseGoogleApi(){
+		return Boolean.valueOf(CollectionHelper.getMapAttr(options, KEY_GOOGLEAPI));
+	}
+	
 	protected DataStore getDataStore() {
 		return this.datastore;
 	}
@@ -227,8 +236,13 @@ abstract class U2FAMLoginModule extends AMLoginModule {
 		String script = String.format("var incomingSignData = %s;", DataStoreHelper.serialize(signData));
 
 		try {
-			InputStream inputStream = U2FAMLoginModule.class.getResourceAsStream(u2fAPIResource);
-			script += "\n" + IOUtils.toString(inputStream, "UTF-8");
+			InputStream inputStream = null;
+			
+			if(getUseGoogleApi()){
+				inputStream = U2FAMLoginModule.class.getResourceAsStream(u2fAPIResource);
+				script += "\n" + IOUtils.toString(inputStream, "UTF-8");
+			}
+			
 			inputStream = this.getClass().getResourceAsStream(u2fAPISignResource);
 			script += "\n" + IOUtils.toString(inputStream, "UTF-8");
 		} catch (IOException e) {
@@ -249,10 +263,16 @@ abstract class U2FAMLoginModule extends AMLoginModule {
 		String script = String.format("var registrationData = %s;", DataStoreHelper.serialize(registrationSessionData));
 
 		try {
-			InputStream inputStream = this.getClass().getResourceAsStream(u2fAPIResource);
-			script += "\n" + IOUtils.toString(inputStream, "UTF-8");
+			InputStream inputStream = null;
+			
+			if(getUseGoogleApi()){
+				inputStream = this.getClass().getResourceAsStream(u2fAPIResource);
+				script += "\n" + IOUtils.toString(inputStream, "UTF-8");
+			}
+			
 			inputStream = this.getClass().getResourceAsStream(u2fAPIRegisterResouce);
 			script += "\n" + IOUtils.toString(inputStream, "UTF-8");
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

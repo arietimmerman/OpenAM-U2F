@@ -101,6 +101,16 @@
 
 				<AttributeSchema name="nl-arietimmerman-openam-u2f-trustedCertificates" type="single" syntax="xml" i18nKey="u2f-trusted-certificates" resourceName="certificates">
 				</AttributeSchema>
+				
+				<AttributeSchema name="nl-arietimmerman-openam-u2f-googleapi" type="single" syntax="boolean" i18nKey="u2f-use-google-api" resourceName="googleapi">
+					<BooleanValues>
+						<BooleanTrueValue i18nKey="true">true</BooleanTrueValue>
+						<BooleanFalseValue i18nKey="false">false</BooleanFalseValue>
+					</BooleanValues>
+					<DefaultValues>
+						<Value>true</Value>
+					</DefaultValues>
+				</AttributeSchema>
 
 				</SubSchema>
 			</Organization>
