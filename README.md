@@ -15,6 +15,8 @@ The following features are supported:
 
 For storing device registration data, any OpenAM identity store can be used (OpenDJ, SQL, LDAP, etc.). However, by default the "Memory data store" is enabled. This is a special data store that allows testing this module without touching your identity store. Ideal for demo and POC scenarios.   
 
+![A screenshot of the OpenAM FIDO U2F module in action](Screenshot.png "Screenshot of the module")
+
 ## What is FIDO U2F? 
 > 
 "The FIDO U2F protocol enables relying parties to offer a strong cryptographic 2nd factor option for end user security. The relying party's dependence on passwords is reduced. The password can even be simplified to a 4 digit PIN. End users carry a single U2F device which works with any relying party supporting the protocol. The user gets the convenience of a single 'keychain' device and convenient security."
@@ -52,8 +54,9 @@ Out of the box, ForgeRock OpenAM supports a lot of authentication standards. How
   ssoadm register-auth-module -u amadmin -f /location/of/your/password --authmodule nl.arietimmerman.openam.u2f.U2F
   ```
   
-6. Restart OpenAM.
-7. Configure the module. At a minimum, configure an *App Id*. Make sure you use a HTTPS-url as the *App Id*.	
+6. Optionally, copy the template files from the `theme` folder to `/location/of/openam_webapps/`
+7. Restart OpenAM.
+8. Configure the module. At a minimum, configure an *App Id*. Make sure you use a HTTPS-url as the *App Id*.	
 
 ## How to prepare OpenDJ for storing device data
 
