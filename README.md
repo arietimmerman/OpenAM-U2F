@@ -58,6 +58,23 @@ Out of the box, ForgeRock OpenAM supports a lot of authentication standards. How
 7. Restart OpenAM.
 8. Configure the module. At a minimum, configure an *App Id*. Make sure you use a HTTPS-url as the *App Id*.	
 
+## How to uninstall it
+
+1. Delete the service with `ssoadm`.
+
+  ``` 
+  ssoadm delete-svc -u amadmin -f /location/of/your/password --servicename iPlanetAMAuthU2FService
+  ```
+  
+2. Unregister the authentication module using the following command.
+   
+  ```
+  ./ssoadm unregister-auth-module -u amadmin -f /location/of/your/password --authmodule nl.arietimmerman.openam.u2f.U2F
+  ```
+  
+3. If applicable, delete the theme files.
+4. Delete `WEB-INF/lib/openam-u2f-[VERSION].jar`.
+
 ## How to prepare OpenDJ for storing device data
 
 In order to use OpenDJ - or any other LDAPv3 Directory - simply import the *ldif* file found in the directory *example*.
