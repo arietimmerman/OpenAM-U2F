@@ -11,6 +11,7 @@ var registerRequest = [{
 var registerCallback = function (result) {
 	if (result.errorCode) {
 		//FIXME: implement some kind of error handling
+		console.log(result);
 		console.log('error occurred!');
 		return;
 	}

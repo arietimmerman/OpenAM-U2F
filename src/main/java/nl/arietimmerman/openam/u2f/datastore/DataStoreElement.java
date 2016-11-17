@@ -9,15 +9,22 @@ package nl.arietimmerman.openam.u2f.datastore;
 
 import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.forgerock.json.JsonValue;
+import org.forgerock.openam.utils.JsonObject;
 
 /**
  * A single record in the {@link DataStore}, storing information of a single registered device.
  */
 public class DataStoreElement {
+	
+	public final String type = "u2fdevice";
+	public String name = "Nieuw system";
 	private final String accountName;
 	private final String deviceName;
 	private final byte[] publicKey;
